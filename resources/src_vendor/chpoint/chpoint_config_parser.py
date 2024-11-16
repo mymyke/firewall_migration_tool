@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import logging
 
 from resources.dst_vendor.dst_forti import Forti_DST
 from resources.dst_vendor.dst_asa import ASA_DST
@@ -7,12 +8,13 @@ from resources.dst_vendor.dst_palo import Palo_DST
 from resources.dst_vendor.dst_srx import SRX_DST
 from resources.src_vendor.chpoint.chpoint_policy_parser import chpoint_policy
 from resources.ip_address_converter.netmask_convereter import prefixer
-
+from ipaddress import ip_network
 
 forti = Forti_DST()
 asa = ASA_DST()
 palo = Palo_DST()
 srx = SRX_DST()
+logger = logging.getLogger('fwmig.palo.config')
 
 class CHP_CFG:
     def __init__(self, cfg_file: str, vendor: str) -> None:
@@ -54,6 +56,10 @@ class CHP_CFG:
                 continue
             
             if self.vendor == 'forti':
+                try:
+                    address_ip = ip_network(address_ip, strict=True).with_netmask.replace("/"," ")
+                except:
+                    logger.warning(f"IP-Address for {address_name} is {ip_address}, wich is not a valid Address. Check created 'address.txt' and make changes manually if needed")
                 forti.address(address_name, address_ip, address_description)
             elif self.vendor == 'asa':
                 asa.address(address_name, address_ip, address_description)
