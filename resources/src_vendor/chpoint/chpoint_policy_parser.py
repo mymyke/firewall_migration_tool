@@ -120,13 +120,15 @@ def chpoint_policy(file: str, vendor: str):
         except:
             pass
     
-    names = ["No.", "Name", "Source", "Destination", "Services & Applications", "Action", "Track"]
-    cols = [0, 2, 3, 4, 6, 8, 9]
+    names = ["No.", "Type", "Name", "Source", "Destination", "Services & Applications", "Action", "Track"]
+    cols = [0, 1, 2, 3, 4, 6, 8, 9]
     with open(f'configs/{file}', 'r') as f:
         imported = pd.read_csv(f, usecols=cols, names=names, skiprows=1, keep_default_na=False, skipinitialspace=True)
     os.remove(f'configs/{file}')
 
     for _, row in imported.iterrows():
+        if row["Type"] == "Section":
+            continue            
         policy_id = row["No."]
         policy_name = row["Name"]
         policy_src_address = row["Source"]
